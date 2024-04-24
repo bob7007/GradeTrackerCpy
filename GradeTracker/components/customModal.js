@@ -18,7 +18,7 @@ const CustomModal = ({ modalVisible, setModalVisible, currentItem, setCurrentIte
                         style={styles.input}
                         onChangeText={text => setCurrentItem({ ...currentItem, title: text })}
                         value={currentItem?.title}
-                        placeholder="Edit title"
+                        placeholder="Assignment"
                     />
                     <TextInput
                         style={styles.input}
@@ -29,7 +29,7 @@ const CustomModal = ({ modalVisible, setModalVisible, currentItem, setCurrentIte
                             }
                         }}
                         value={currentItem?.percentage}
-                        placeholder="Edit percentage"
+                        placeholder="Percentage"
                         keyboardType="numeric"
                     />
                     <View style={styles.buttonContainer}>
