@@ -1,39 +1,49 @@
 import React, { useState } from 'react';
 import { View,Button,Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput  } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons  } from '@expo/vector-icons';
-
-
+import CustomModal from '../components/customModal';
 
 function HomeScreen({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [currentItem, setCurrentItem] = useState(null);
     const [assignments, setAssignments] = useState([
-        { id: '1', title: 'edit assignment...', percentage: '0%' },
-        { id: '2', title: 'edit assignment...', percentage: '0%' }
+        { id: '1', title: 'edit assignment...', percentage: 0,default:true },
+        { id: '2', title: 'edit assignment...', percentage: 0,default:true }
     ]);
 
     const openModal = (id) => {
-        const itemToEdit = assignments.find(item => item.id === id);
+        let itemToEdit = assignments.find(item => item.id === id);
         if (itemToEdit) {
+            if(itemToEdit.default){
+                itemToEdit.title='';
+                itemToEdit.percentage='';
+            }
             setCurrentItem(itemToEdit);
             setModalVisible(true);
         }
     };
     
     const saveEdits = () => {
+        console.log(currentItem);
+
         const updatedAssignments = assignments.map(item => {
-            if (item.id === currentItem.id) {
-                return currentItem;
+        if (item.id === currentItem.id) {
+            const updatedItem = { ...currentItem }; // Create a copy of currentItem
+            if (updatedItem.default) {
+                updatedItem.default = false; // Update default to false if it's initially true
             }
-            return item;
+            return updatedItem;
+        }
+        return item;
         });
+        console.log(updatedAssignments);
         setAssignments(updatedAssignments);
     };
     // Function to add a new assignment with default title and percentage
     const addAssignment = () => {
         const newId = (assignments.length + 1).toString();  // Creating a simple ID based on length
         const newTitle = "edit assignment...";  // New assignment title
-        const newAssignment = { id: newId, title: newTitle, percentage: '0%' };
+        const newAssignment = { id: newId, title: newTitle, percentage: 0, default:true  };
         setAssignments([...assignments, newAssignment]);
     };
 
@@ -60,54 +70,13 @@ function HomeScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={text => setCurrentItem({ ...currentItem, title: text })}
-                            value={currentItem?.title}
-                            placeholder="Edit title"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={text => setCurrentItem({ ...currentItem, percentage: text })}
-                            value={currentItem?.percentage}
-                            placeholder="Edit percentage"
-                            keyboardType="numeric"
-                        />
-                        <View>
-                            <TouchableOpacity
-                                style={styles.button}
-                                onPress={() => {
-                                    saveEdits();
-                                    setModalVisible(false);
-                                }}
-                            >
-                                <MaterialIcons name="save" size={20} color="#fff" />
-                                <Text style={styles.buttonText}>Save</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.button}
-                                onPress={() => {
-                                    setModalVisible(false);
-                                }}
-                            >
-                                <MaterialIcons name="cancel" size={20} color="#fff" />
-                                <Text style={styles.buttonText}>Cancel</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
+            <CustomModal
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                currentItem={currentItem}
+                setCurrentItem={setCurrentItem}
+                saveEdits={saveEdits}
+            />
             <Button title="Add New Assignment" onPress={addAssignment} />
             <FlatList
                 data={assignments}
@@ -147,36 +116,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    centeredView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 22,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
-    },
-    input: {
-        width: '90%',
-        marginBottom: 10,
-        padding: 10,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-    },
     button: {
         flexDirection: 'row', // Icon and text in a row
         backgroundColor: '#5bc0de', // Example button color
@@ -186,10 +125,7 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Center items vertically within the button
         justifyContent: 'center' // Center items horizontally within the button
     },
-    buttonText: {
-        color: '#fff', // Text color
-        marginLeft: 10, // Space between the icon and the text
-    },
+
 });
 
 export default HomeScreen;
